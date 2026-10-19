@@ -3,7 +3,7 @@ package pe.org.floreseh.finanzas.user.presentation.dto;
 import pe.org.floreseh.finanzas.user.domain.Role;
 import pe.org.floreseh.finanzas.user.domain.User;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public record UserResponse(
@@ -11,7 +11,7 @@ public record UserResponse(
         String email,
         Role role,
         boolean isActive,
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
     public static UserResponse fromEntity(User user) {
         return new UserResponse(
