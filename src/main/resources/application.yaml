@@ -2,10 +2,6 @@ spring:
     application:
         name: auth-service
 
-    logging:
-        level:
-            com.zaxxer.hikari.HikariConfig: DEBUG
-
     # Spring Boot 3.1+ maneja automáticamente la conexión si detecta el compose.yaml
     docker:
         compose:
@@ -13,26 +9,36 @@ spring:
             file: compose.yaml
 
     jpa:
+        # Libera la conexión a la BD apenas termina el método @Transactional
+        open-in-view: false
         hibernate:
             ddl-auto: update
         show-sql: true
         properties:
             hibernate:
                 format_sql: true
+                jdbc:
+                    time_zone: UTC
+                connection:
+                    provider_disables_autocommit: true
 
     datasource:
         hikari:
+            pool-name: FinanzasHikariPool
             maximum-pool-size: 10
             minimum-idle: 5
             connection-timeout: 3000
             idle-timeout: 600000
             max-lifetime: 1800000
+            auto-commit: false
 
     # Activación de Virtual Threads (Proyecto Loom - Java 21+)
     threads:
         virtual:
             enabled: true
 
+security:
     jwt:
-        secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-        expiration: 600000
+        secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+        expiration: 15m
+        issuer: finanzas-auth-service
