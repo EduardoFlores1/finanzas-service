@@ -1,6 +1,8 @@
 package pe.org.floreseh.finanzas.core.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -14,10 +16,35 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUnhandledException(Exception ex, HttpServletRequest request) {
+
+        String incidentId = UUID.randomUUID().toString();
+
+        log.error("Error no controlado [IncidentId: {}] en la ruta [{} {}]: ",
+                incidentId, request.getMethod(), request.getRequestURI(), ex);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Ha ocurrido un error interno inesperado en el servidor. Por favor, contacte a soporte con el código de incidente."
+        );
+        problem.setTitle("Error interno del servidor");
+        problem.setInstance(URI.create(request.getRequestURI()));
+
+        problem.setProperty("errorCode", "INTERNAL_SERVER_ERROR");
+        problem.setProperty("incidentId", incidentId);
+        problem.setProperty("timestamp", Instant.now());
+
+        return problem;
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
