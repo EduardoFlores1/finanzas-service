@@ -11,6 +11,7 @@ public record UserResponse(
         String email,
         Role role,
         boolean isActive,
+        Long version,
         Instant createdAt
 ) {
     public static UserResponse fromEntity(User user) {
@@ -19,6 +20,7 @@ public record UserResponse(
                 user.getEmail(),
                 user.getRole(),
                 user.isActive(),
+                user.getVersion(),
                 user.getCreatedAt()
         );
     }
